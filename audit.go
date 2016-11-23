@@ -5,8 +5,7 @@ package main
 
 import (
 	"flag"
-	"github.com/pkg/profile"
-	"github.com/spf13/viper"
+	"io/ioutil"
 	"log"
 	"log/syslog"
 	"os"
@@ -14,6 +13,9 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/profile"
+	"github.com/spf13/viper"
 )
 
 var l = log.New(os.Stdout, "", 0)
@@ -67,7 +69,8 @@ func setRules(config *viper.Viper) {
 
 func createOutput(config *viper.Viper) *AuditWriter {
 	if config.GetBool("output.syslog.enabled") == false {
-		el.Fatalln("No outputs have been enabled")
+		syslogWriter := ioutil.Discard
+		return NewAuditWriter(syslogWriter, 1)
 	}
 
 	attempts := config.GetInt("output.syslog.attempts")
